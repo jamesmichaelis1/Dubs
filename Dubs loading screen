@@ -1,0 +1,148 @@
+//
+//  ContentView.swift
+//  The Dubs
+//
+//  Created by Mr. Krabs on 8/23/21.
+//
+
+import LocalAuthentication
+import SwiftUI
+import UIKit
+
+// 50, 195, 5
+
+struct ContentView: View {
+    let color: UIColor = UIColor(red: 0/255.0, green: 0/255.0, blue: 0/255.0, alpha: 1)
+    let color2: UIColor = UIColor(red: 1/255.0, green: 200/255.0, blue: 1/255.0, alpha: 1)
+
+    @State var animate: Bool = false
+    @State var showSplash: Bool = true
+
+
+    var body: some View {
+        VStack {
+            ZStack {
+                // Content aka login screen
+                ZStack {
+                    VStack{
+                        Image("thumbnail")
+                            .resizable()
+                            .background(Color.white)
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 16, height: 400)
+                            .scaleEffect(animate ? 25 : 1)
+                            
+                        Text("Login/Sign Up")
+                       
+                            .background(Color(hue: 0.32, saturation: 0.863, brightness: 0.78, opacity: 0.652))
+                            .font(.system(size: 42))
+                    }
+                }
+                // Splash Screen aka loading screen
+                ZStack {
+                    Color(color)
+                    
+                    Image("thumbnail")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 40, height: 40)
+                        .scaleEffect(animate ? 900 : 10)
+                        .animation(Animation.easeOut(duration: 1))
+                        
+                }
+                .edgesIgnoringSafeArea(.all)
+                .animation(Animation.linear(duration: 0.5))
+                .opacity(showSplash ? 1 : 0)
+            }
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now()+0.3) { animate.toggle()
+                
+                DispatchQueue.main.asyncAfter(deadline: .now()+1) { showSplash.toggle()
+                
+            }
+        }
+    }
+}
+
+    
+    
+    
+
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+        }
+    }
+}
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+
+
+
+
+
+
+//
+//  ViewController.swift
+//  FaceID
+//
+//  Created by Mr. Krabs on 8/22/21.
+//
+
+// THIS IS THE FACE ID PART
+
+class ViewController: UIViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        let button = UIButton(frame: CGRect(x: 0, y: 0, width: 500, height: 75))
+        view.addSubview(button)
+        button.center = view.center
+        button.setTitle("Face ID", for: .normal)
+        button.backgroundColor = .systemGreen
+        button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
+        
+    }
+    @objc func didTapButton() {
+        let context = LAContext()
+        var error: NSError? = nil
+        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+            
+            let reason = "Please Authorize with touch ID"
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { [weak self] success, error in
+                DispatchQueue.main.async {
+                    guard success, error == nil else {
+                        
+                        let alert = UIAlertController(title: "Failed to Authenticate", message: "Please try again", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+                        self?.present(alert, animated: true)
+                        return
+                        }
+                    
+                    let vc = UIViewController()
+                    vc.title = "Dubs Financial"
+                    vc.view.backgroundColor = .systemGreen
+                    self?.present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
+                    
+                    }
+                }
+        }
+        else {
+            let alert = UIAlertController(title: "Unavailable", message: "You can't use the feature", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+            present(alert, animated: true)
+        }
+    }
+
+}
+
